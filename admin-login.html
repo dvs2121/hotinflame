@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Login | Deeksha Caterers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Playfair+Display:wght@600;700;800&family=Raleway:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="admin-page">
+<main class="admin-login-page">
+    <a class="admin-back-link" href="index.html"><i class="fas fa-arrow-left"></i> Back to website</a>
+    <section class="admin-login-card standalone-login-card">
+        <div class="admin-icon"><i class="fas fa-user-shield"></i></div>
+        <span class="section-tag">Sign In</span>
+        <h1>Administrator</h1>
+        <p>Sign in to manage </p>
+        <form onsubmit="adminLogin(event)">
+            <div class="form-group">
+                <label for="admin-user">Email</label>
+                <input id="admin-user" type="email" placeholder="admin@example.com" autocomplete="username" required>
+            </div>
+            <div class="form-group">
+                <label for="admin-pass">Password</label>
+                <input id="admin-pass" type="password" placeholder="Enter password" autocomplete="current-password" required>
+            </div>
+            <button class="btn btn-gold" type="submit"><i class="fas fa-lock-open"></i> Sign in</button>
+        </form>
+        <small>Use the credentials</small>
+        <div id="login-message" class="admin-message"></div>
+    </section>
+</main>
+<script src="admin.js"></script>
+</body>
+</html>

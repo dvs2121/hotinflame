@@ -1,0 +1,8 @@
+node_modules/
+.env
+*.log
+backend/uploads/dishes/*
+!backend/uploads/dishes/.gitkeep
+.env.*
+!.env.example
+node_modules/

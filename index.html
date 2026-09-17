@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deeksha Caterers & TheFlameIn Hot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Playfair+Display:wght@400;600;700;800&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- PROMO BANNER -->
+<div class="promo-banner" id="promo-banner">
+    <div class="promo-content">
+        <span class="promo-tag">Welcome</span>
+        <h4>Deeksha Caterers &amp; TheFlameIn Hot</h4>
+        <p>Explore the menus and select dishes for your enquiry.</p>
+        <button class="promo-close" onclick="closeBanner()">&times;</button>
+    </div>
+</div>
+
+<!-- OWNER CARD -->
+<div class="owner-card">
+    <div class="owner-card-left">
+        <div class="owner-avatar">R</div>
+        <div class="owner-info-text">
+            <h4>Ravindra Singh Yadav</h4>
+            <p>Proprietor & Founder</p>
+        </div>
+    </div>
+    <div class="owner-badge">Owner</div>
+    <div class="owner-card-right">
+        <span>Deeksha Caterers</span>
+        Est. 1999 · Authentic & Premium Catering services 🍽️
+    </div>
+</div>
+
+<!-- NAVBAR -->
+<nav>
+    <div class="nav-logo">
+        <div class="nav-logo-icon"><i class="fas fa-utensils"></i></div>
+        <h1 id="nav-brand-title">DEEKSHA <span>CATERERS</span></h1>
+    </div>
+    
+    <div class="brand-switcher">
+        <button class="brand-btn active" data-brand="deeksha" onclick="switchBrand('deeksha')">Deeksha</button>
+        <button class="brand-btn" data-brand="flamein" onclick="switchBrand('flamein')">TheFlameIn Hot</button>
+    </div>
+
+    <div class="nav-links">
+        <a href="#hero">Home</a>
+        <a href="#services">What We Do</a>
+        <a href="#menu">Menu</a>
+        <a href="#gallery">Gallery</a>
+        <a href="#order">Book Event</a>
+        <a href="admin-login.html" class="admin-portal-link"><i class="fas fa-shield-alt"></i> Admin Portal</a>
+    </div>
+
+    <div class="nav-actions">
+        <button class="cart-btn" onclick="toggleCart()">
+            <i class="fas fa-shopping-basket"></i> Cart
+            <span class="cart-count" id="cart-count">0</span>
+        </button>
+        <div class="hamburger" onclick="toggleMobileNav()">
+            <span></span><span></span><span></span>
+        </div>
+    </div>
+</nav>
+
+<!-- MOBILE NAV -->
+<div class="mobile-nav" id="mobile-nav">
+    <a href="#hero" onclick="closeMobileNav()">Home</a>
+    <a href="#services" onclick="closeMobileNav()">What We Do</a>
+    <a href="#menu" onclick="closeMobileNav()">Menu</a>
+    <a href="#gallery" onclick="closeMobileNav()">Gallery</a>
+    <a href="#order" onclick="closeMobileNav()">Book Event</a>
+    <a href="admin-login.html" class="admin-portal-link" onclick="closeMobileNav()"><i class="fas fa-shield-alt"></i> Admin Portal</a>
+</div>
+
+<!-- HERO SECTION -->
+<section class="hero" id="hero">
+    <div class="hero-bg-pattern"></div>
+    <div class="hero-ornament"></div>
+    <div class="hero-content fade-up">
+        <div class="hero-tag" id="hero-tag"><i class="fas fa-star"></i> Premier Catering Service</div>
+        <h2 id="hero-title">Celebrate Life's <span>Golden Moments</span></h2>
+        <p id="hero-desc">From lavish weddings and birthdays to intimate gatherings — Deeksha Caterers brings the authentic, rich flavours to your table with grace and elegance.</p>
+        <div class="hero-btns">
+            <a href="#menu" class="btn btn-gold">Explore Menu</a>
+            <a href="#order" class="btn btn-outline" style="color: white; border-color: white;">Book Catering</a>
+        </div>
+        <div class="hero-stats">
+            <div class="stat"><div class="stat-num">3500+</div><div class="stat-label">Events Done</div></div>
+            <div class="stat"><div class="stat-num">99+</div><div class="stat-label">Signature Dishes</div></div>
+            <div class="stat"><div class="stat-num">27+</div><div class="stat-label">Years Experience</div></div>
+        </div>
+    </div>
+</section>
+
+<!-- WHAT WE DO -->
+<section class="section what-we-do" id="services">
+    <div class="section-title">
+        <span class="section-tag">Our Services</span>
+        <h2>What We Do</h2>
+        <div class="gold-line"></div>
+        <p>Crafting unforgettable culinary experiences for every occasion</p>
+    </div>
+    <div class="services-grid">
+        <div class="service-card">
+            <div class="service-icon">💍</div>
+            <h3>Wedding Catering</h3>
+            <p>Lavish multi-course traditional menus designed for your big day.</p>
+        </div>
+        <div class="service-card">
+            <div class="service-icon">🎂</div>
+            <h3>Birthday Events</h3>
+            <p>Joyful spreads and custom dessert tables for milestone celebrations.</p>
+        </div>
+        <div class="service-card">
+            <div class="service-icon">🏢</div>
+            <h3>Corporate Events</h3>
+            <p>Professional, high-quality catering for meetings and conferences.</p>
+        </div>
+        <div class="service-card">
+            <div class="service-icon">🎊</div>
+            <h3>Private Parties</h3>
+            <p>Customized menus for intimate gatherings and family functions.</p>
+        </div>
+    </div>
+</section>
+
+<!-- MENU SECTION -->
+<section class="section section-alt" id="menu">
+    <div class="section-title">
+        <span class="section-tag" id="menu-tag">Our Specialties</span>
+        <h2 id="menu-title">Our Dishes</h2>
+        <div class="gold-line"></div>
+        <p id="menu-desc">A curated selection of authentic cuisine for every occasion</p>
+    </div>
+    
+    <div class="filter-tabs" id="filter-tabs">
+        <!-- Dynamically populated -->
+    </div>
+
+    <div class="dishes-grid" id="dishes-grid">
+        <!-- Dynamically populated -->
+    </div>
+</section>
+
+<!-- GALLERY SECTION -->
+<section class="section" id="gallery">
+    <div class="section-title">
+        <span class="section-tag">Event Art</span>
+        <h2>Our Gallery</h2>
+        <div class="gold-line"></div>
+        <p>A glimpse into our recent events and food presentations</p>
+    </div>
+    <div class="gallery-grid" id="gallery-grid">
+        <!-- Dynamically populated -->
+    </div>
+</section>
+
+<!-- ORDER FORM -->
+<section class="section order-form-section" id="order">
+    <div class="section-title">
+        <span class="section-tag">Get in Touch</span>
+        <h2>Book Your Event</h2>
+        <div class="gold-line"></div>
+        <p>Fill in the details and we'll get back within 24 hours</p>
+    </div>
+    
+    <div class="order-form-wrap">
+        <form class="form-card" id="quotation-form" onsubmit="submitQuotation(event)">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Full Name *</label>
+                    <input type="text" id="o-name" required>
+                </div>
+                <div class="form-group">
+                    <label>Email *</label>
+                    <input type="email" id="o-email" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Phone Number *</label>
+                    <input type="tel" id="o-phone" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Event Type *</label>
+                    <select id="o-event" required>
+                        <option value="">Select event type</option>
+                        <option>Wedding</option>
+                        <option>Birthday</option>
+                        <option>Anniversary</option>
+                        <option>Corporate Event</option>
+                        <option>Engagement</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Event Date *</label>
+                    <input type="date" id="o-date" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>No. of Guests *</label>
+                    <input type="number" id="o-guests" required min="1">
+                </div>
+                <div class="form-group">
+                    <label>Event Time</label>
+                    <input type="time" id="o-time">
+                </div>
+            </div>
+            
+            <button type="button" class="location-btn" id="loc-btn" onclick="getCurrentLocation()">
+                <i class="fas fa-map-marker-alt"></i> <span id="loc-btn-text">📍 Use Current Location</span>
+            </button>
+            <input type="hidden" id="o-lat">
+            <input type="hidden" id="o-lng">
+            <div id="location-display"></div>
+
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label>Venue Address *</label>
+                <textarea id="o-address" required></textarea>
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label>Selected Dishes & Special Requirements</label>
+                <textarea id="o-notes" placeholder="List your selected dishes from the menu or add special instructions..."></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-whatsapp" style="width: 100%; justify-content: center;">
+                <i class="fab fa-whatsapp"></i> Send Quotation via WhatsApp
+            </button>
+        </form>
+    </div>
+</section>
+
+<!-- CART SIDEBAR -->
+<div class="cart-overlay" id="cart-overlay" onclick="toggleCart()"></div>
+<div class="cart-sidebar" id="cart-sidebar">
+    <div class="cart-header">
+        <h3>Your Cart</h3>
+        <button class="cart-close" onclick="toggleCart()" aria-label="Close cart">&times;</button>
+    </div>
+    <div class="cart-items" id="cart-items-list"></div>
+    <div class="cart-footer">
+        <p style="font-size: 12px; color: var(--text-light); margin-bottom: 12px;">No prices are displayed. Send your selected dish list for an enquiry.</p>
+        <button class="cart-clear-btn" onclick="clearCart()">Clear cart</button>
+        <button class="btn btn-whatsapp" style="width: 100%; justify-content: center;" onclick="sendCartOnWhatsApp()">
+            <i class="fab fa-whatsapp"></i> Send Order on WhatsApp
+        </button>
+    </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+    <div class="footer-grid">
+        <div class="footer-brand">
+            <h3 id="footer-brand-title">Deeksha Caterers</h3>
+            <p id="footer-brand-desc">Bringing the authentic flavours to your most cherished celebrations. With 27+ years of excellence in catering, we make every event unforgettable.</p>
+        </div>
+        <div>
+            <h5>Quick Links</h5>
+            <ul>
+                <li><a href="#menu">Our Menu</a></li>
+                <li><a href="#gallery">Gallery</a></li>
+                <li><a href="#order">Book Event</a></li>
+            </ul>
+        </div>
+        <div>
+            <h5>Contact</h5>
+            <ul id="footer-contact-list">
+                <li><a href="#"><i class="fas fa-phone"></i> <span id="f-mobile">+91 XXXXXXXXXX</span></a></li>
+                <li><a href="#"><i class="fas fa-envelope"></i> <span id="f-email">info@deekshacaterers.com</span></a></li>
+                <li><a href="#"><i class="fas fa-map-marker-alt"></i> <span id="f-address">Gujarat, India</span></a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        © 2026 <span id="footer-copy-brand">Deeksha Caterers</span> — Proprietor: Ravindra Singh Yadav | made with ❤️ by <a href="https://deveshpratap.vercel.app" target="_blank" rel="noopener noreferrer" style="color:#D4AF37; font-weight:700;">Devesh Pratap</a>
+    </div>
+</footer>
+
+<div class="dev-floating-wrapper" id="dev-floating-wrapper">
+    <div class="dev-float-card" id="dev-float-card">
+        <div class="dev-card-header">
+            <h4>Developer Info</h4>
+            <button class="dev-card-close" type="button" aria-label="Close developer info">×</button>
+        </div>
+        <p><strong>Devesh Pratap</strong></p>
+        <p>AI &amp; ML Engineer / Power BI Developer</p>
+        <p>Designing data-driven digital experiences and business automation.</p>
+        <a class="dev-portfolio-link" href="https://deveshpratap.vercel.app" target="_blank" rel="noopener noreferrer">View Portfolio</a>
+    </div>
+    <button class="dev-float-btn" type="button" aria-label="Open developer info"><i class="fas fa-code"></i></button>
+</div>
+
+<div class="dev-popup-overlay" id="dev-popup-overlay">
+    <div class="dev-popup-modal" role="dialog" aria-modal="true" aria-labelledby="dev-popup-title">
+        <button class="dev-popup-close" type="button" aria-label="Close developer popup">×</button>
+        <div class="dev-popup-content">
+            <div class="dev-logo"><i class="fas fa-code"></i></div>
+            <h3 id="dev-popup-title">Devesh Pratap</h3>
+            <p class="dev-subtitle">AI &amp; ML Engineer / Power BI Developer</p>
+            <div class="dev-details">
+                <p><strong>Focus:</strong> Product engineering, automation, and insight-driven experiences.</p>
+                <p><strong>Skills:</strong> JavaScript, React, Python, Power BI, automation, AI workflows</p>
+            </div>
+            <div class="dev-social-links">
+                <a href="https://deveshpratap.vercel.app" target="_blank" rel="noopener noreferrer"><i class="fas fa-globe"></i> Portfolio</a>
+                <a href="https://github.com/dvs2121" target="_blank" rel="noopener noreferrer"><i class="fab fa-github"></i> GitHub</a>
+                <a href="https://www.instagram.com/devesh.prajapati_2128" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram"></i> Instagram</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script src="script.js"></script>
+</body>
+</html>

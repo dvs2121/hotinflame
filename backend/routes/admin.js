@@ -1,0 +1,14 @@
+const express = require('express');
+const { login, me, listQuotations } = require('../controllers/adminController');
+const { getQuotation, updateStatus } = require('../controllers/quotationController');
+const { listGallery, getGallery } = require('../controllers/galleryController');
+const adminAuth = require('../middleware/adminAuth');
+const router = express.Router();
+router.post('/login', login);
+router.get('/me', adminAuth, me);
+router.get('/gallery', adminAuth, listGallery);
+router.get('/gallery/:id', adminAuth, getGallery);
+router.get('/quotations', adminAuth, listQuotations);
+router.get('/quotations/:id', adminAuth, getQuotation);
+router.put('/quotations/:id/status', adminAuth, updateStatus);
+module.exports = router;
