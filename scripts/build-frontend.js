@@ -10,3 +10,4 @@ const apiBase = configuredApiBase || '/api';
 fs.rmSync(output, { recursive: true, force: true });
 fs.cpSync(source, output, { recursive: true });
 fs.writeFileSync(path.join(output, 'config.js'), `window.API_BASE = ${JSON.stringify(apiBase)};\n`);
+if (process.env.VERCEL) fs.writeFileSync(path.join(source, 'config.js'), `window.API_BASE = ${JSON.stringify(apiBase)};\n`);
