@@ -33,7 +33,7 @@ The API starts on `http://localhost:5002` only after MongoDB connects. Use `npm 
 
 ## Frontend Configuration
 
-The frontend clients default to `http://localhost:5002/api` in `script.js` and `admin.js`. Change the `API_BASE` constant in both files for a deployed API, or define `window.API_BASE` before the relevant script is loaded. Serve the project through a local web server such as VS Code Live Server or `npx serve .`; do not use a production frontend with a hardcoded development URL.
+The frontend clients default to `http://localhost:5002/api` in `frontend/script.js` and `frontend/admin.js`. Change the `API_BASE` constant in both files for a deployed API, or define `window.API_BASE` before the relevant script is loaded. Serve the `frontend/` directory through a local web server such as VS Code Live Server or `npx serve frontend`; do not use a production frontend with a hardcoded development URL.
 
 Quotation submission is a guest workflow: customers provide their contact and event details and do not create or enter a password. Admin JWTs are stored only for the current browser session and are required for all admin mutations.
 
