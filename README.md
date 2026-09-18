@@ -71,7 +71,7 @@ Dish images accept JPG, JPEG, PNG, and WEBP up to 5 MB. Files are stored under `
 
 The Vercel project serves only the static frontend. Deploy `backend/` separately on a Node.js host with persistent or object storage for uploads, set the backend environment variables in that host's secret manager, restrict `CORS_ORIGINS` to the deployed frontend origin, and configure MongoDB Atlas Network Access for the backend host.
 
-Set the Vercel environment variable `API_BASE_URL` to the complete HTTPS API base, including `/api` (for example, `https://api.example.com/api`) for Preview and Production, then redeploy. The Vercel build fails clearly when this variable is missing instead of shipping a frontend that calls `localhost`.
+Set the Vercel environment variable `API_BASE_URL` to the complete HTTPS API base, including `/api` (for example, `https://api.example.com/api`) for Preview and Production, then redeploy. If it is omitted, the frontend uses same-origin `/api`, which requires the API to be proxied on the same domain.
 
 Local disk uploads are not durable on serverless or ephemeral hosts. Move dish and gallery uploads to Cloudinary, S3, or equivalent before using such a host. Serve both applications over HTTPS and use a managed process supervisor for the backend.
 
