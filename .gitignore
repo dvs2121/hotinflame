@@ -6,3 +6,4 @@ backend/uploads/dishes/*
 .env.*
 !.env.example
 node_modules/
+.vercel
