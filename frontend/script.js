@@ -14,7 +14,7 @@ async function apiRequest(path, options = {}) {
 }
 function showToast(message) { const toast = document.getElementById('toast'); if (!toast) return; toast.textContent = message; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2800); }
 function escapeHtml(value) { return String(value || '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[char])); }
-function imageUrl(path) { return path ? `${API_BASE.replace('/api', '')}${path}` : ''; }
+function imageUrl(path) { return path ? `${API_BASE.replace(/\/api\/?$/, '')}${path}` : ''; }
 
 function switchBrand(brand) {
     activeBrand = brand; localStorage.setItem('activeBrand', brand); currentFilter = 'all';

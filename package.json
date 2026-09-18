@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "rm -rf public && mkdir -p public && cp -R frontend/. public/",
+    "build": "node scripts/build-frontend.js",
     "install:backend": "npm --prefix backend install",
     "start": "npm --prefix backend start",
     "dev": "npm --prefix backend run dev",

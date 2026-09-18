@@ -21,11 +21,12 @@ const Settings = require('./models/Settings');
 
 const app = express();
 const port = Number(process.env.PORT || 5002);
+const isProduction = process.env.NODE_ENV === 'production';
 const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:3000,http://localhost:5002,http://localhost:5500,http://127.0.0.1:5500').split(',').map(origin => origin.trim()).filter(Boolean);
 
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(cors({ origin: (origin, callback) => {
-    const isLocalDevelopmentOrigin = origin && /^https?:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin);
+    const isLocalDevelopmentOrigin = !isProduction && origin && /^https?:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin);
     return !origin || allowedOrigins.includes(origin) || isLocalDevelopmentOrigin ? callback(null, true) : callback(new Error('Origin is not allowed by CORS'));
 } }));
 app.use(express.json({ limit: '1mb' }));
@@ -33,6 +34,7 @@ app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 30, standardHeaders: true, legacyHeaders: false, message: { success: false, message: 'Too many authentication attempts', error: 'Rate limit exceeded' } });
+const publicWriteLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 10, standardHeaders: true, legacyHeaders: false, message: { success: false, message: 'Too many submissions', error: 'Rate limit exceeded' } });
 const ensureUploadDirectory = (directory) => { const fullPath = path.join(__dirname, directory); require('fs').mkdirSync(fullPath, { recursive: true }); return fullPath; };
 const upload = multer({
     storage: multer.diskStorage({ destination: (_, __, cb) => cb(null, ensureUploadDirectory('uploads/dishes')), filename: (req, file, cb) => cb(null, `${Date.now()}-${Math.round(Math.random() * 1e9)}${path.extname(file.originalname).toLowerCase()}`) }),
@@ -45,14 +47,21 @@ const galleryUpload = multer({
     fileFilter: (req, file, cb) => ['image/jpeg', 'image/png', 'image/webp'].includes(file.mimetype) ? cb(null, true) : cb(new Error('Only JPG, JPEG, PNG, and WEBP images are allowed'))
 });
 
+function validateProductionConfig() {
+    if (!isProduction) return;
+    const missing = ['MONGODB_URI', 'MONGODB_DB_NAME', 'JWT_SECRET', 'CORS_ORIGINS'].filter(key => !process.env[key]);
+    if (missing.length) throw new Error(`Missing production configuration: ${missing.join(', ')}`);
+    if (process.env.JWT_SECRET.length < 32) throw new Error('JWT_SECRET must be at least 32 characters in production');
+}
+
 app.get('/api/health', (req, res) => res.json({ success: true, message: 'Deeksha Caterers API is running', database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected' }));
 app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/admin', authLimiter, adminRoutes);
 app.use('/api/dishes', dishRoutes);
 app.use('/api/gallery', galleryRoutes);
 app.use('/api/categories', categoryRoutes);
-app.use('/api/quotations', quotationRoutes);
-app.use('/api/contact', contactRoutes);
+app.use('/api/quotations', publicWriteLimiter, quotationRoutes);
+app.use('/api/contact', publicWriteLimiter, contactRoutes);
 app.post('/api/admin/dishes', adminAuth, upload.single('image'), dishController.createDish);
 app.put('/api/admin/dishes/:id', adminAuth, upload.single('image'), dishController.updateDish);
 app.delete('/api/admin/dishes/:id', adminAuth, dishController.deleteDish);
@@ -96,10 +105,11 @@ app.use((error, req, res, next) => {
 
 async function start() {
     try {
+        validateProductionConfig();
         await connectDatabase();
         app.listen(port, () => console.log(`Server running on port ${port}`));
     } catch (error) {
-        console.error(`Database connection failed: ${error.message}`);
+        console.error(`Server startup failed: ${error.message}`);
         process.exitCode = 1;
     }
 }

@@ -14,7 +14,7 @@ async function apiRequest(path, options = {}) {
 }
 function showAdminToast(message) { const toast = document.getElementById('admin-toast') || document.getElementById('login-message'); if (!toast) return; toast.textContent = message; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2600); }
 function escapeHtml(value) { return String(value || '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[char])); }
-function imageUrl(path) { return path ? `${API_BASE.replace('/api', '')}${path}` : ''; }
+function imageUrl(path) { return path ? `${API_BASE.replace(/\/api\/?$/, '')}${path}` : ''; }
 
 async function adminLogin(event) {
     event.preventDefault();
