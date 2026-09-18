@@ -20,7 +20,7 @@ const galleryController = require('./controllers/galleryController');
 const Settings = require('./models/Settings');
 
 const app = express();
-const port = Number(process.env.PORT || 5002);
+const port = Number(process.env.PORT || 5000);
 const isProduction = process.env.NODE_ENV === 'production';
 const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:3000,http://localhost:5002,http://localhost:5500,http://127.0.0.1:5500').split(',').map(origin => origin.trim()).filter(Boolean);
 
@@ -54,6 +54,7 @@ function validateProductionConfig() {
     if (process.env.JWT_SECRET.length < 32) throw new Error('JWT_SECRET must be at least 32 characters in production');
 }
 
+app.get('/', (req, res) => res.json({ success: true, message: 'API is running' }));
 app.get('/api/health', (req, res) => res.json({ success: true, message: 'Deeksha Caterers API is running', database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected' }));
 app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/admin', authLimiter, adminRoutes);
