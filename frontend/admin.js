@@ -1,4 +1,4 @@
-const API_BASE = window.API_BASE || 'http://localhost:5002/api';
+const API_BASE = window.API_BASE || 'https://hotinflame.onrender.com/api';
 let adminToken = sessionStorage.getItem('adminToken') || '';
 let cachedDishes = [];
 let selectedDishModule = 'deeksha';

@@ -5,7 +5,8 @@ const root = path.join(__dirname, '..');
 const source = path.join(root, 'frontend');
 const output = path.join(root, 'public');
 const configuredApiBase = String(process.env.NEXT_PUBLIC_API_URL || process.env.API_BASE_URL || '').trim().replace(/\/+$/, '');
-const apiBase = configuredApiBase ? (configuredApiBase.endsWith('/api') ? configuredApiBase : `${configuredApiBase}/api`) : '/api';
+const defaultApiBase = process.env.VERCEL ? 'https://hotinflame.onrender.com/api' : '/api';
+const apiBase = configuredApiBase ? (configuredApiBase.endsWith('/api') ? configuredApiBase : `${configuredApiBase}/api`) : defaultApiBase;
 
 fs.rmSync(output, { recursive: true, force: true });
 fs.cpSync(source, output, { recursive: true });

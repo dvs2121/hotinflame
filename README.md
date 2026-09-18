@@ -29,11 +29,11 @@ npm run seed
 npm run dev
 ```
 
-The API starts on `http://localhost:5002` only after MongoDB connects. Use `npm start` for production-style startup.
+The API starts on `http://localhost:5002` only after MongoDB connects when `PORT=5002` is set locally. Use `npm start` for production-style startup.
 
 ## Frontend Configuration
 
-The frontend clients default to `http://localhost:5002/api` in `frontend/script.js` and `frontend/admin.js`. Change the `API_BASE` constant in both files for a deployed API, or define `window.API_BASE` before the relevant script is loaded. Serve the `frontend/` directory through a local web server such as VS Code Live Server or `npx serve frontend`; do not use a production frontend with a hardcoded development URL.
+The frontend build uses `NEXT_PUBLIC_API_URL` (or the legacy `API_BASE_URL`) and appends `/api` when needed. For Vercel, set `NEXT_PUBLIC_API_URL=https://hotinflame.onrender.com` for Preview and Production. If it is omitted on Vercel, the build defaults to the deployed API; local builds use same-origin `/api`.
 
 Quotation submission is a guest workflow: customers provide their contact and event details and do not create or enter a password. Admin JWTs are stored only for the current browser session and are required for all admin mutations.
 
@@ -71,7 +71,7 @@ Dish images accept JPG, JPEG, PNG, and WEBP up to 5 MB. Files are stored under `
 
 The Vercel project serves only the static frontend. Deploy `backend/` separately on a Node.js host with persistent or object storage for uploads, set the backend environment variables in that host's secret manager, restrict `CORS_ORIGINS` to the deployed frontend origin, and configure MongoDB Atlas Network Access for the backend host.
 
-Set the Vercel environment variable `API_BASE_URL` to the complete HTTPS API base, including `/api` (for example, `https://api.example.com/api`) for Preview and Production, then redeploy. If it is omitted, the frontend uses same-origin `/api`, which requires the API to be proxied on the same domain.
+Set the Vercel environment variable `NEXT_PUBLIC_API_URL` to `https://hotinflame.onrender.com` for Preview and Production, then redeploy. Set the backend `CORS_ORIGINS` Render variable to `https://hotinflame.vercel.app` (plus any other approved frontend origins).
 
 Local disk uploads are not durable on serverless or ephemeral hosts. Move dish and gallery uploads to Cloudinary, S3, or equivalent before using such a host. Serve both applications over HTTPS and use a managed process supervisor for the backend.
 

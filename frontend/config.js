@@ -1,1 +1,1 @@
-window.API_BASE = window.API_BASE || '/api';
+window.API_BASE = "https://hotinflame.onrender.com/api";
