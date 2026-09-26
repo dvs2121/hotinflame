@@ -7,24 +7,47 @@
         }
     }
 
-    window.imageUrl = function (value) {
+    window.resolveImageUrl = function (value) {
         if (typeof value !== 'string' || !value.trim()) return '';
 
         const source = value.trim();
+        if (/^https:\/\//i.test(source)) return source;
+        if (source.startsWith('//')) return '';
         const backendOrigin = getBackendOrigin();
         try {
-            const parsed = new URL(source, `${backendOrigin}/`);
-            if (parsed.protocol === 'https:') return parsed.href;
-            if (parsed.protocol === 'http:') {
+            if (/^http:\/\//i.test(source)) {
+                const parsed = new URL(source);
                 if (window.location.protocol !== 'https:') return parsed.href;
                 if (parsed.origin === backendOrigin) {
                     parsed.protocol = 'https:';
                     return parsed.href;
                 }
+                return '';
             }
+            const relativePath = source.startsWith('/') ? source : `/${source}`;
+            return new URL(relativePath, `${backendOrigin}/`).href;
         } catch {
             return '';
         }
-        return '';
+    };
+
+    window.imageUrl = window.resolveImageUrl;
+
+    window.optimizedImageUrl = function (value, width = 900) {
+        const resolved = window.resolveImageUrl(value);
+        if (!resolved) return '';
+        try {
+            const parsed = new URL(resolved);
+            const marker = '/image/upload/';
+            const markerIndex = parsed.pathname.indexOf(marker);
+            if (parsed.protocol !== 'https:' || markerIndex < 0) return resolved;
+            const remainder = parsed.pathname.slice(markerIndex + marker.length);
+            if (remainder.split('/')[0].includes(',')) return resolved;
+            const boundedWidth = Math.max(100, Math.min(2000, Math.round(width)));
+            parsed.pathname = `${parsed.pathname.slice(0, markerIndex + marker.length)}f_auto,q_auto,w_${boundedWidth},c_limit/${remainder}`;
+            return parsed.href;
+        } catch {
+            return resolved;
+        }
     };
 })();

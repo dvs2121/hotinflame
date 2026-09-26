@@ -1,6 +1,7 @@
 const fs = require('fs');
 const Gallery = require('../models/Gallery');
 const { resolveStoredUpload } = require('../config/uploads');
+const { uploadImage, deleteImage } = require('../config/cloudinary');
 
 function sanitizeTitle(value) {
     const next = String(value || '').trim();
@@ -16,7 +17,7 @@ function normalizeGalleryPayload(body, image) {
         title: sanitizeTitle(body.title),
         caption: sanitizeCaption(body.caption || body.imageCaption),
         type: String(body.type || 'deeksha').trim().toLowerCase(),
-        ...(image ? { image: `/uploads/gallery/${image.filename}` } : {})
+        ...(image ? { image: image.url, imagePublicId: image.publicId } : {})
     };
 }
 
@@ -40,6 +41,11 @@ async function listGallery(req, res, next) {
     }
 }
 
+async function removePreviousImage(image, publicId) {
+    if (publicId) return deleteImage(publicId);
+    if (image) removeStoredImage(image);
+}
+
 async function getGallery(req, res, next) {
     try {
         const item = await Gallery.findById(req.params.id);
@@ -51,29 +57,40 @@ async function getGallery(req, res, next) {
 }
 
 async function createGallery(req, res, next) {
+    let uploadedImage;
     try {
         if (!req.file) return res.status(400).json({ success: false, message: 'Please select an image to upload', error: 'Validation failed' });
 
-        const item = await Gallery.create(normalizeGalleryPayload(req.body, req.file));
+        uploadedImage = await uploadImage(req.file.buffer, 'deeksha-caterers/gallery');
+        const item = await Gallery.create(normalizeGalleryPayload(req.body, uploadedImage));
         res.status(201).json({ success: true, message: 'Gallery image added', data: item });
     } catch (error) {
+        if (uploadedImage) await deleteImage(uploadedImage.publicId);
         next(error);
     }
 }
 
 async function updateGallery(req, res, next) {
+    let uploadedImage;
     try {
         const item = await Gallery.findById(req.params.id);
         if (!item) return res.status(404).json({ success: false, message: 'Gallery item not found', error: 'Not found' });
 
-        const nextPayload = normalizeGalleryPayload(req.body, req.file);
-        if (req.file && item.image) removeStoredImage(item.image);
-        if (!req.file) delete nextPayload.image;
+        const previousImage = item.image;
+        const previousPublicId = item.imagePublicId;
+        if (req.file) uploadedImage = await uploadImage(req.file.buffer, 'deeksha-caterers/gallery');
+        const nextPayload = normalizeGalleryPayload(req.body, uploadedImage);
+        if (!uploadedImage) {
+            delete nextPayload.image;
+            delete nextPayload.imagePublicId;
+        }
 
         Object.assign(item, nextPayload);
         await item.save();
+        if (uploadedImage) await removePreviousImage(previousImage, previousPublicId);
         res.json({ success: true, message: 'Gallery image updated', data: item });
     } catch (error) {
+        if (uploadedImage) await deleteImage(uploadedImage.publicId);
         next(error);
     }
 }
@@ -83,8 +100,8 @@ async function deleteGallery(req, res, next) {
         const item = await Gallery.findById(req.params.id);
         if (!item) return res.status(404).json({ success: false, message: 'Gallery item not found', error: 'Not found' });
 
-        if (item.image) removeStoredImage(item.image);
         await item.deleteOne();
+        await removePreviousImage(item.image, item.imagePublicId);
 
         res.json({ success: true, message: 'Gallery image deleted', data: {} });
     } catch (error) {

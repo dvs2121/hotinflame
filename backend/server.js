@@ -19,11 +19,12 @@ const dishController = require('./controllers/dishController');
 const galleryController = require('./controllers/galleryController');
 const Settings = require('./models/Settings');
 const { uploadsRoot } = require('./config/uploads');
+const { validateCloudinaryConfig } = require('./config/cloudinary');
 
 const app = express();
 const port = Number(process.env.PORT || 5000);
 const isProduction = process.env.NODE_ENV === 'production';
-const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:3000,http://localhost:5002,http://localhost:5500,http://127.0.0.1:5500').split(',').map(origin => origin.trim()).filter(Boolean);
+const allowedOrigins = (process.env.CORS_ORIGINS || 'https://hotinflamee.vercel.app,http://localhost:3000,http://localhost:5002,http://localhost:5500,http://127.0.0.1:5500').split(',').map(origin => origin.trim()).filter(Boolean);
 
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(cors({ origin: (origin, callback) => {
@@ -36,24 +37,19 @@ app.use('/uploads', express.static(uploadsRoot, { dotfiles: 'deny', index: false
 
 const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 30, standardHeaders: true, legacyHeaders: false, message: { success: false, message: 'Too many authentication attempts', error: 'Rate limit exceeded' } });
 const publicWriteLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 10, standardHeaders: true, legacyHeaders: false, message: { success: false, message: 'Too many submissions', error: 'Rate limit exceeded' } });
-const ensureUploadDirectory = (directory) => { const fullPath = path.join(uploadsRoot, directory); require('fs').mkdirSync(fullPath, { recursive: true }); return fullPath; };
+const imageMimeTypes = new Set(['image/jpeg', 'image/png', 'image/webp']);
+const imageExtensions = new Set(['.jpg', '.jpeg', '.png', '.webp']);
 const upload = multer({
-    storage: multer.diskStorage({ destination: (_, __, cb) => cb(null, ensureUploadDirectory('dishes')), filename: (req, file, cb) => cb(null, `${Date.now()}-${Math.round(Math.random() * 1e9)}${path.extname(file.originalname).toLowerCase()}`) }),
+    storage: multer.memoryStorage(),
     limits: { fileSize: 5 * 1024 * 1024 },
-    fileFilter: (req, file, cb) => ['image/jpeg', 'image/png', 'image/webp'].includes(file.mimetype) ? cb(null, true) : cb(new Error('Only JPG, JPEG, PNG, and WEBP images are allowed'))
-});
-const galleryUpload = multer({
-    storage: multer.diskStorage({ destination: (_, __, cb) => cb(null, ensureUploadDirectory('gallery')), filename: (req, file, cb) => cb(null, `${Date.now()}-${Math.round(Math.random() * 1e9)}${path.extname(file.originalname).toLowerCase()}`) }),
-    limits: { fileSize: 5 * 1024 * 1024 },
-    fileFilter: (req, file, cb) => ['image/jpeg', 'image/png', 'image/webp'].includes(file.mimetype) ? cb(null, true) : cb(new Error('Only JPG, JPEG, PNG, and WEBP images are allowed'))
+    fileFilter: (req, file, cb) => imageMimeTypes.has(file.mimetype) && imageExtensions.has(path.extname(file.originalname).toLowerCase()) ? cb(null, true) : cb(new Error('Only JPG, JPEG, PNG, and WEBP images are allowed'))
 });
 
 function validateProductionConfig() {
     if (!isProduction) return;
-    const missing = ['MONGODB_URI', 'MONGODB_DB_NAME', 'JWT_SECRET', 'CORS_ORIGINS', 'UPLOADS_DIR'].filter(key => !process.env[key]);
+    const missing = ['MONGODB_URI', 'MONGODB_DB_NAME', 'JWT_SECRET', 'CORS_ORIGINS'].filter(key => !process.env[key]);
     if (missing.length) throw new Error(`Missing production configuration: ${missing.join(', ')}`);
     if (process.env.JWT_SECRET.length < 32) throw new Error('JWT_SECRET must be at least 32 characters in production');
-    if (!path.isAbsolute(process.env.UPLOADS_DIR)) throw new Error('UPLOADS_DIR must be an absolute path to persistent storage in production');
 }
 
 app.get('/', (req, res) => res.json({ success: true, message: 'API is running' }));
@@ -69,8 +65,8 @@ app.post('/api/admin/dishes', adminAuth, upload.single('image'), dishController.
 app.put('/api/admin/dishes/:id', adminAuth, upload.single('image'), dishController.updateDish);
 app.delete('/api/admin/dishes/:id', adminAuth, dishController.deleteDish);
 app.get('/api/admin/gallery', adminAuth, galleryController.listGallery);
-app.post('/api/admin/gallery', adminAuth, galleryUpload.single('image'), galleryController.createGallery);
-app.put('/api/admin/gallery/:id', adminAuth, galleryUpload.single('image'), galleryController.updateGallery);
+app.post('/api/admin/gallery', adminAuth, upload.single('image'), galleryController.createGallery);
+app.put('/api/admin/gallery/:id', adminAuth, upload.single('image'), galleryController.updateGallery);
 app.delete('/api/admin/gallery/:id', adminAuth, galleryController.deleteGallery);
 app.get('/api/settings/whatsapp', async (req, res, next) => {
     try {
@@ -99,6 +95,7 @@ app.delete('/api/admin/categories/:id', adminAuth, dishController.deleteCategory
 app.use((req, res) => res.status(404).json({ success: false, message: 'Route not found', error: `${req.method} ${req.originalUrl}` }));
 app.use((error, req, res, next) => {
     if (error instanceof multer.MulterError || error.message.includes('Only JPG')) return res.status(400).json({ success: false, message: 'Invalid image upload', error: error.message });
+    if (error.statusCode === 502) return res.status(502).json({ success: false, message: error.message, error: 'Image upload failed' });
     if (error.name === 'ValidationError') return res.status(400).json({ success: false, message: 'Validation failed', error: Object.values(error.errors).map(item => item.message).join(', ') });
     if (error.code === 11000) return res.status(409).json({ success: false, message: 'A record with that value already exists', error: 'Duplicate value' });
     if (error.name === 'CastError') return res.status(400).json({ success: false, message: 'Invalid resource id', error: 'Validation failed' });
@@ -108,6 +105,7 @@ app.use((error, req, res, next) => {
 
 async function start() {
     try {
+        validateCloudinaryConfig();
         validateProductionConfig();
         await connectDatabase();
         app.listen(port, '0.0.0.0', () => console.log(`Server running on port ${port}`));

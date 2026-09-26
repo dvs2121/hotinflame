@@ -14,7 +14,7 @@ npm install
 
 Alternatively, from the project root run `npm run install:backend`.
 
-3. Copy `backend/.env.example` to `backend/.env` and set every value. Keep `<db_password>` as a placeholder until you replace it locally with the URL-encoded MongoDB Atlas database password. Never commit `.env`.
+3. Copy `backend/.env.example` to `backend/.env` and set every value, including `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET`. Keep `<db_password>` as a placeholder until you replace it locally with the URL-encoded MongoDB Atlas database password. Never commit `.env`.
 4. Create a MongoDB Atlas cluster, create a database user, allow the development machine's IP address in Network Access, and use `MONGODB_DB_NAME=deeksha_caterers`.
 5. Set a long random `JWT_SECRET` and a strong non-default `ADMIN_PASSWORD`.
 6. Seed the admin and initial categories from either the project root or `backend/`:
@@ -65,16 +65,16 @@ Admin:
 - `GET /api/admin/quotations/:id`
 - `PUT /api/admin/quotations/:id/status`
 
-Dish and gallery images accept JPG, JPEG, PNG, and WEBP up to 5 MB. Files are stored under `UPLOADS_DIR` (default: `backend/uploads/`); only `/uploads/...` paths are saved in MongoDB. On Render, attach a persistent disk and set `UPLOADS_DIR` to its mount path (for example, `/var/data/uploads`) so uploaded files survive restarts and deploys. Existing production records whose files have already disappeared from ephemeral storage must have those images re-uploaded; their MongoDB records are not removed.
+Dish and gallery images accept JPG, JPEG, PNG, and WEBP up to 5 MB. New uploads are held in memory during the request, sent to Cloudinary, and saved in MongoDB as an HTTPS `image`/`imageUrl` plus an `imagePublicId`. Assets use the `deeksha-caterers/dishes` and `deeksha-caterers/gallery` folders. Existing `/uploads/...` records remain supported and are served from `backend/uploads/` when those old files still exist; records and files are not bulk-migrated or deleted. If a legacy file has already disappeared from ephemeral storage, re-upload its image through the admin panel.
 
 ## Deployment
 
-The Vercel project serves only the static frontend. Deploy `backend/` separately on a Node.js host with persistent or object storage for uploads, set the backend environment variables in that host's secret manager, restrict `CORS_ORIGINS` to the deployed frontend origin, and configure MongoDB Atlas Network Access for the backend host. For Render local-disk storage, configure a persistent disk mounted at the `UPLOADS_DIR` value before accepting uploads.
+The Vercel project serves only the static frontend. Deploy `backend/` separately on Render and set `MONGODB_URI`, `MONGODB_DB_NAME`, `JWT_SECRET`, `CORS_ORIGINS`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET` in the Render service environment. Set `CORS_ORIGINS` to the deployed frontend origin `https://hotinflamee.vercel.app` (and any other approved origins), and configure MongoDB Atlas Network Access for Render. A Render persistent disk and `UPLOADS_DIR` are not required for new uploads.
 
-Set the Vercel environment variable `NEXT_PUBLIC_API_URL` to `https://hotinflame.onrender.com` for Preview and Production, then redeploy. Set the backend `CORS_ORIGINS` Render variable to `https://hotinflamee.vercel.app` (plus any other approved frontend origins).
+Set the Vercel environment variable `NEXT_PUBLIC_API_URL` to `https://hotinflame.onrender.com` for Preview and Production, then redeploy. Cloudinary credentials are backend-only and must not be added to Vercel; the frontend receives image URLs through the API.
 
-Local disk uploads are not durable on serverless or ephemeral hosts. Move dish and gallery uploads to Cloudinary, S3, or equivalent before using such a host. Serve both applications over HTTPS and use a managed process supervisor for the backend.
+Serve both applications over HTTPS and use a managed process supervisor for the backend. The backend validates all three Cloudinary variables at startup and exits with a clear missing-variable message if any are unset.
 
 ## Security Notes
 
-Passwords are bcrypt-hashed, JWT secrets and MongoDB credentials are never returned by the API, auth routes are rate-limited, request bodies are validated, ObjectId and upload errors are handled centrally, and `helmet`/CORS are enabled. The placeholder credentials in `backend/.env` are intentionally unusable until configured locally.
+Passwords are bcrypt-hashed, JWT secrets, MongoDB credentials, and the Cloudinary API secret are never returned by the API, auth routes are rate-limited, request bodies are validated, ObjectId and upload errors are handled centrally, and `helmet`/CORS are enabled. The placeholder credentials in `backend/.env.example` are intentionally unusable until configured locally.
