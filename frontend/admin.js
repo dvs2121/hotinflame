@@ -57,7 +57,7 @@ async function renderAdminGallery() {
                     <p>${escapeHtml(item.caption || 'No caption provided.')}</p>
                     <div class="admin-card-actions">
                         <button class="admin-save-btn" onclick="openGalleryForm('${item._id}', '${brand}')"><i class="fas fa-pen"></i> Edit</button>
-                        <button class="admin-delete-btn" onclick="deleteGalleryImage('${item._id}', '${escapeHtml(item.title || 'this gallery image')}')"><i class="fas fa-trash"></i> Delete</button>
+                        <button class="admin-delete-btn" onclick="deleteGalleryImage('${item._id}')"><i class="fas fa-trash"></i> Delete</button>
                     </div>
                 </div>
             </article>

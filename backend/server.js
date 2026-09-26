@@ -64,7 +64,6 @@ app.use('/api/contact', publicWriteLimiter, contactRoutes);
 app.post('/api/admin/dishes', adminAuth, upload.single('image'), dishController.createDish);
 app.put('/api/admin/dishes/:id', adminAuth, upload.single('image'), dishController.updateDish);
 app.delete('/api/admin/dishes/:id', adminAuth, dishController.deleteDish);
-app.get('/api/admin/gallery', adminAuth, galleryController.listGallery);
 app.post('/api/admin/gallery', adminAuth, upload.single('image'), galleryController.createGallery);
 app.put('/api/admin/gallery/:id', adminAuth, upload.single('image'), galleryController.updateGallery);
 app.delete('/api/admin/gallery/:id', adminAuth, galleryController.deleteGallery);
