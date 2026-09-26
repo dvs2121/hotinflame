@@ -1,12 +1,12 @@
 const fs = require('fs');
-const path = require('path');
 const Dish = require('../models/Dish');
 const Category = require('../models/Category');
+const { resolveStoredUpload } = require('../config/uploads');
 
 function removeStoredImage(filePath) {
     if (!filePath) return;
-    const safePath = path.join(__dirname, '..', filePath.replace(/^\/+/, ''));
-    fs.unlink(safePath, () => {});
+    const safePath = resolveStoredUpload(filePath);
+    if (safePath) fs.unlink(safePath, () => {});
 }
 
 function cleanDish(body, image) {

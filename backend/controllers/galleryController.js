@@ -1,6 +1,6 @@
 const fs = require('fs');
-const path = require('path');
 const Gallery = require('../models/Gallery');
+const { resolveStoredUpload } = require('../config/uploads');
 
 function sanitizeTitle(value) {
     const next = String(value || '').trim();
@@ -22,7 +22,8 @@ function normalizeGalleryPayload(body, image) {
 
 function removeStoredImage(filePath) {
     if (!filePath) return;
-    const safePath = path.join(__dirname, '..', filePath.replace(/^\/+/, ''));
+    const safePath = resolveStoredUpload(filePath);
+    if (!safePath) return;
     fs.access(safePath, fs.constants.F_OK, (error) => {
         if (!error) fs.unlink(safePath, () => {});
     });

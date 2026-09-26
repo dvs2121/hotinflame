@@ -65,13 +65,13 @@ Admin:
 - `GET /api/admin/quotations/:id`
 - `PUT /api/admin/quotations/:id/status`
 
-Dish images accept JPG, JPEG, PNG, and WEBP up to 5 MB. Files are stored under `backend/uploads/dishes/`; only their paths are saved in MongoDB. This storage boundary can be replaced with Cloudinary or S3 later.
+Dish and gallery images accept JPG, JPEG, PNG, and WEBP up to 5 MB. Files are stored under `UPLOADS_DIR` (default: `backend/uploads/`); only `/uploads/...` paths are saved in MongoDB. On Render, attach a persistent disk and set `UPLOADS_DIR` to its mount path (for example, `/var/data/uploads`) so uploaded files survive restarts and deploys. Existing production records whose files have already disappeared from ephemeral storage must have those images re-uploaded; their MongoDB records are not removed.
 
 ## Deployment
 
-The Vercel project serves only the static frontend. Deploy `backend/` separately on a Node.js host with persistent or object storage for uploads, set the backend environment variables in that host's secret manager, restrict `CORS_ORIGINS` to the deployed frontend origin, and configure MongoDB Atlas Network Access for the backend host.
+The Vercel project serves only the static frontend. Deploy `backend/` separately on a Node.js host with persistent or object storage for uploads, set the backend environment variables in that host's secret manager, restrict `CORS_ORIGINS` to the deployed frontend origin, and configure MongoDB Atlas Network Access for the backend host. For Render local-disk storage, configure a persistent disk mounted at the `UPLOADS_DIR` value before accepting uploads.
 
-Set the Vercel environment variable `NEXT_PUBLIC_API_URL` to `https://hotinflame.onrender.com` for Preview and Production, then redeploy. Set the backend `CORS_ORIGINS` Render variable to `https://hotinflame.vercel.app` (plus any other approved frontend origins).
+Set the Vercel environment variable `NEXT_PUBLIC_API_URL` to `https://hotinflame.onrender.com` for Preview and Production, then redeploy. Set the backend `CORS_ORIGINS` Render variable to `https://hotinflamee.vercel.app` (plus any other approved frontend origins).
 
 Local disk uploads are not durable on serverless or ephemeral hosts. Move dish and gallery uploads to Cloudinary, S3, or equivalent before using such a host. Serve both applications over HTTPS and use a managed process supervisor for the backend.
 

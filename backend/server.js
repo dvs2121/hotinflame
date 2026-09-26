@@ -18,6 +18,7 @@ const adminAuth = require('./middleware/adminAuth');
 const dishController = require('./controllers/dishController');
 const galleryController = require('./controllers/galleryController');
 const Settings = require('./models/Settings');
+const { uploadsRoot } = require('./config/uploads');
 
 const app = express();
 const port = Number(process.env.PORT || 5000);
@@ -31,27 +32,28 @@ app.use(cors({ origin: (origin, callback) => {
 } }));
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(uploadsRoot, { dotfiles: 'deny', index: false }));
 
 const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 30, standardHeaders: true, legacyHeaders: false, message: { success: false, message: 'Too many authentication attempts', error: 'Rate limit exceeded' } });
 const publicWriteLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 10, standardHeaders: true, legacyHeaders: false, message: { success: false, message: 'Too many submissions', error: 'Rate limit exceeded' } });
-const ensureUploadDirectory = (directory) => { const fullPath = path.join(__dirname, directory); require('fs').mkdirSync(fullPath, { recursive: true }); return fullPath; };
+const ensureUploadDirectory = (directory) => { const fullPath = path.join(uploadsRoot, directory); require('fs').mkdirSync(fullPath, { recursive: true }); return fullPath; };
 const upload = multer({
-    storage: multer.diskStorage({ destination: (_, __, cb) => cb(null, ensureUploadDirectory('uploads/dishes')), filename: (req, file, cb) => cb(null, `${Date.now()}-${Math.round(Math.random() * 1e9)}${path.extname(file.originalname).toLowerCase()}`) }),
+    storage: multer.diskStorage({ destination: (_, __, cb) => cb(null, ensureUploadDirectory('dishes')), filename: (req, file, cb) => cb(null, `${Date.now()}-${Math.round(Math.random() * 1e9)}${path.extname(file.originalname).toLowerCase()}`) }),
     limits: { fileSize: 5 * 1024 * 1024 },
     fileFilter: (req, file, cb) => ['image/jpeg', 'image/png', 'image/webp'].includes(file.mimetype) ? cb(null, true) : cb(new Error('Only JPG, JPEG, PNG, and WEBP images are allowed'))
 });
 const galleryUpload = multer({
-    storage: multer.diskStorage({ destination: (_, __, cb) => cb(null, ensureUploadDirectory('uploads/gallery')), filename: (req, file, cb) => cb(null, `${Date.now()}-${Math.round(Math.random() * 1e9)}${path.extname(file.originalname).toLowerCase()}`) }),
+    storage: multer.diskStorage({ destination: (_, __, cb) => cb(null, ensureUploadDirectory('gallery')), filename: (req, file, cb) => cb(null, `${Date.now()}-${Math.round(Math.random() * 1e9)}${path.extname(file.originalname).toLowerCase()}`) }),
     limits: { fileSize: 5 * 1024 * 1024 },
     fileFilter: (req, file, cb) => ['image/jpeg', 'image/png', 'image/webp'].includes(file.mimetype) ? cb(null, true) : cb(new Error('Only JPG, JPEG, PNG, and WEBP images are allowed'))
 });
 
 function validateProductionConfig() {
     if (!isProduction) return;
-    const missing = ['MONGODB_URI', 'MONGODB_DB_NAME', 'JWT_SECRET', 'CORS_ORIGINS'].filter(key => !process.env[key]);
+    const missing = ['MONGODB_URI', 'MONGODB_DB_NAME', 'JWT_SECRET', 'CORS_ORIGINS', 'UPLOADS_DIR'].filter(key => !process.env[key]);
     if (missing.length) throw new Error(`Missing production configuration: ${missing.join(', ')}`);
     if (process.env.JWT_SECRET.length < 32) throw new Error('JWT_SECRET must be at least 32 characters in production');
+    if (!path.isAbsolute(process.env.UPLOADS_DIR)) throw new Error('UPLOADS_DIR must be an absolute path to persistent storage in production');
 }
 
 app.get('/', (req, res) => res.json({ success: true, message: 'API is running' }));
